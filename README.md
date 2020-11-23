@@ -6,6 +6,7 @@ docker logs -t -f tg_bot.mf
 ## NewBotAdd
 1. implement SingleBot interface (pkg/bot_manager/manger.go:14)
 1. add bot to botPool in InitBotManager (pkg/bot_manager/manger.go:27)
+1. set webHook url from logs
 
 ### Sample config
 ```yaml
