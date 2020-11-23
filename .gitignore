@@ -1,0 +1,4 @@
+.idea/*
+configs/conf.yaml
+bin/*
+!bin/.gitkeep

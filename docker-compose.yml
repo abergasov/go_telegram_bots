@@ -1,0 +1,24 @@
+version: '3'
+
+volumes:
+  data_volume:
+
+services:
+
+  tg_bot:
+    container_name: tg_bot.mf
+    build:
+      context: .
+      dockerfile: cmd/Dockerfile
+    restart: always
+    ports:
+      - 8090:8090
+#    depends_on:
+#      - dbMysql
+    networks:
+      my_fin_app-network: { }
+    #command: ["/app/wait-for-it.sh", "dbMysql:3309", "--", "/app/my_fin"]
+
+networks:
+  my_fin_app-network:
+    external: true
