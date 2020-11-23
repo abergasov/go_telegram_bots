@@ -1,4 +1,4 @@
-FILE_HASH?=$(shell git ls-files | xargs sha256sum | cut -d" " -f1 | sha256sum | cut -d" " -f1)
+FILE_HASH?=$(git rev-parse HEAD)
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 
 build:

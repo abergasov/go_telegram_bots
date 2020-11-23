@@ -1,5 +1,7 @@
 host_url: https://bot.site.com
 prod_env: true
+orchestra_url: http://site.com/abc
+orchestra_key: ZJzVdtXD56amDYAhuRcFOgUBk6pZJzVdtXD56amDYAhuRcFOgUBk
 app_port: 8090
 bot_list:
   - bot_name: "@my_super_bot_1"

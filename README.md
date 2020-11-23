@@ -12,6 +12,8 @@ docker logs -t -f tg_bot.mf
 host_url: https://bot.site.com
 prod_env: true
 app_port: 8090
+orchestra_url: http://site.com/abc
+orchestra_key: ZJzVdtXD56amDYAhuRcFOgUBk6pZJzVdtXD56amDYAhuRcFOgUBk
 bot_list:
   - bot_name: "@my_super_bot_1"
     bot_token: 123:abc
