@@ -1,4 +1,4 @@
-FILE_HASH?=$(git rev-parse HEAD)
+FILE_HASH := $(or ${hash},${hash},"empty_hash")
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 
 build:

@@ -1,7 +1,9 @@
 FROM golang:1.15 AS build
+ARG gitcommithash
+RUN echo "Based on commit: $gitcommithash"
 COPY . /go/src/bot
 WORKDIR /go/src/bot
-RUN make build
+RUN make build hash="$gitcommithash"
 
 # 2 шаг - создание контейнера для запуска
 FROM debian:buster-slim

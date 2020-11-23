@@ -10,6 +10,8 @@ services:
     build:
       context: .
       dockerfile: cmd/Dockerfile
+      args:
+        - gitcommithash=$GIT_HASH
     restart: always
     ports:
       - 8090:8090
