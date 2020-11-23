@@ -1,26 +1,30 @@
-host_url: https://bot.belformag.ru
+host_url: https://bot.site.com
 prod_env: true
 app_port: 8090
 bot_list:
   - bot_name: "@my_super_bot_1"
     bot_token: 123:abc
+    bot_hook_path: 07Q7ZXM2xCUsdvQtpxtaueoeq08PmR0CE4735cr // prefix for webhook updates
     bot_admin_chats:
       - 86003117
     bot_logger_chat:
       - -255525844
-    db_host: 127.0.0.1
-    db_user: ryuiJNbLwqtbpG1NYecNbzi
-    db_name: TJRDHZ7f
-    db_pass: KpU1H43J6bAKRKKjB0IovKrTUTd2AcqbYodS
-    db_port: 3821
+    db_conf: // skip this section if no db need
+      db_host: 127.0.0.1
+      db_user: ryuiJNbLwqtbpG1NYecNbzi
+      db_name: TJRDHZ7f
+      db_pass: KpU1H43J6bAKRKKjB0IovKrTUTd2AcqbYodS
+      db_port: 3821
   - bot_name: "@my_super_bot_2"
     bot_token: 123:abc
+    bot_hook_path: WKmIGDeMvWxSCVkwrRgZxkZsUca1ir35ZR0Eez3 // prefix for webhook updates
     bot_admin_chats:
       - 86003117
     bot_logger_chat:
       - -255525844
-    db_host: 127.0.0.1
-    db_user: PXnSleOuvaLBNgI2YxJCLRB
-    db_name: iFdkVFVl
-    db_pass: UcdKCVuqZxwTOtjP3ACLVPPYEil1KTfAbZvO
-    db_port: 3519
+    db_conf: // skip this section if no db need
+      db_host: 127.0.0.1
+      db_user: PXnSleOuvaLBNgI2YxJCLRB
+      db_name: iFdkVFVl
+      db_pass: UcdKCVuqZxwTOtjP3ACLVPPYEil1KTfAbZvO
+      db_port: 3519
