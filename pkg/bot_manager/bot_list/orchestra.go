@@ -60,7 +60,9 @@ func (o *OrchestraBot) HandleRequest(msg *tgbotapi.Update) {
 		msg.Message.ForwardFromChat != nil &&
 		msg.Message.ForwardFromChat.Type == "channel"
 	if !isForwardFromChannel {
-		o.botAPI.SendMessage(msg.Message.Chat.ID, "это не канал", nil)
+		if msg.Message.Chat != nil {
+			o.botAPI.SendMessage(msg.Message.Chat.ID, "это не канал", nil)
+		}
 		return
 	}
 	o.collectChanel(msg)
