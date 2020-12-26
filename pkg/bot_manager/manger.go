@@ -29,6 +29,7 @@ func InitBotManager(config *config.AppConfig, hookPostfix, buildTime, buildHash 
 		botPool: []SingleBot{
 			bot_list.NewMusicBot(config, utils.NewWorker(), buildTime, buildHash),
 			bot_list.NewOrchestraBot(config, utils.NewWorker(), buildTime, buildHash),
+			bot_list.NewControllerBot(config, utils.NewWorker(), buildTime, buildHash),
 		},
 	}
 	bM.getHookUrls(config.HostURL, hookPostfix)
