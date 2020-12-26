@@ -91,6 +91,7 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 			err = c.WriteMessage(websocket.TextMessage, b)
 			if err != nil {
 				logger.Error("Error write in socket", err)
+				break
 			}
 			logger.Info("received message", zap.String("data", string(b)))
 		}
