@@ -3,6 +3,7 @@ package main
 import (
 	"go_bots/pkg/config"
 	"go_bots/pkg/logger"
+	"go_bots/pkg/middleware"
 	"go_bots/pkg/routes"
 	"net/http"
 
@@ -30,6 +31,13 @@ func main() {
 			"build_hash": buildHash,
 		})
 	})
+
+	authorized := router.GinEngine.Group("/ws/client/")
+	authorized.Use(middleware.AuthControllerMiddleware(appConf.KeyToken))
+	authorized.GET("pi", func(c *gin.Context) {
+		router.HandleClient(c.Writer, c.Request)
+	})
+
 	logger.Info("Starting server at port " + appConf.AppPort)
 
 	errR := router.GinEngine.Run(":" + appConf.AppPort)

@@ -3,6 +3,7 @@ package bot_list
 import (
 	"encoding/json"
 	"errors"
+	"go.uber.org/zap"
 	"go_bots/pkg/config"
 	"go_bots/pkg/logger"
 	"go_bots/pkg/utils"
@@ -33,13 +34,13 @@ type Command struct {
 
 type ControllerBot struct {
 	abstractBot
-	CommandChain chan Command
+	CommandChain chan *Command
 }
 
 func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime, buildHash string) *ControllerBot {
 	botName := "@rmcpi_bot"
 	mB := &ControllerBot{
-		CommandChain: make(chan Command, 100),
+		CommandChain: make(chan *Command, 100),
 	}
 	for i := range conf.BotList {
 		if conf.BotList[i].BotName != botName {
@@ -73,7 +74,13 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 }
 
 func (o *ControllerBot) handleCallback(callbackMessage string) {
-	print(callbackMessage)
+	msg := strings.ReplaceAll(callbackMessage, "/", "")
+	data := strings.Split(msg, "_")
+	o.CommandChain <- &Command{
+		Cmd:      data[0],
+		ActionID: data[1],
+	}
+	logger.Info("message to control", zap.String("command", callbackMessage))
 }
 
 func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
