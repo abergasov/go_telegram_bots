@@ -32,7 +32,7 @@ func main() {
 		})
 	})
 
-	authorized := router.GinEngine.Group("/ws/client/")
+	authorized := router.GinEngine.Group("/bot/ws/client/")
 	authorized.Use(middleware.AuthControllerMiddleware(appConf.KeyToken))
 	authorized.GET("pi", func(c *gin.Context) {
 		router.HandleClient(c.Writer, c.Request)
