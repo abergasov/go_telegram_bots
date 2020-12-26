@@ -32,12 +32,13 @@ func main() {
 		})
 	})
 
-	authorized := router.GinEngine.Group("/bot/ws/client/")
+	authorized := router.GinEngine.Group("/bot/pi/client/")
 	authorized.Use(middleware.AuthControllerMiddleware(appConf.KeyToken))
-	authorized.GET("pi", func(c *gin.Context) {
+	authorized.GET("ws", func(c *gin.Context) {
 		machineIP := c.GetHeader("X-Real-Ip")
 		router.HandleClient(c.Writer, c.Request, machineIP)
 	})
+	authorized.POST("re", router.HandleClientRest)
 
 	logger.Info("Starting server at port " + appConf.AppPort)
 

@@ -59,6 +59,26 @@ func (a *AppRouter) HandleHook(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{"ok": false})
 }
 
+func (a *AppRouter) HandleClientRest(c *gin.Context) {
+	controllerBot := a.BotManager.GetBot("@rmcpi_bot")
+	if controllerBot == nil {
+		logger.Error("controller bot not registred", errors.New("can't find bot"))
+		return
+	}
+	bot, ok := controllerBot.(*bot_list.ControllerBot)
+	if !ok {
+		logger.Error("can't convert SingleBot to ControllerBot", errors.New("can't find bot"))
+	}
+	var cmd *bot_list.Command
+	bot.MuCommand.Lock()
+	if bot.ActiveCommand != nil {
+		cmd = bot.ActiveCommand
+		bot.ActiveCommand = nil
+	}
+	bot.MuCommand.Unlock()
+	c.JSON(http.StatusOK, gin.H{"ok": true, "cmd": cmd})
+}
+
 func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request, ip string) {
 	c, err := a.upgrader.Upgrade(w, r, nil)
 	if err != nil {
