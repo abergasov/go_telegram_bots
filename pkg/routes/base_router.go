@@ -59,7 +59,7 @@ func (a *AppRouter) HandleHook(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{"ok": false})
 }
 
-func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
+func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request, ip string) {
 	c, err := a.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logger.Error("Upgrade connection error", err)
@@ -93,7 +93,7 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 				logger.Error("Error write in socket", err)
 				break
 			}
-			logger.Info("received message", zap.String("data", string(b)))
+			logger.Info("received message", zap.String("ip", ip), zap.String("data", string(b)))
 		}
 		cmd = nil
 		time.Sleep(300 * time.Millisecond)
