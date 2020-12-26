@@ -25,6 +25,7 @@ type AppConfig struct {
 	AppPort      string      `yaml:"app_port"`
 	OrchestraUrl string      `yaml:"orchestra_url"`
 	OrchestraKey string      `yaml:"orchestra_key"`
+	KeyToken     string      `yaml:"key_token"`
 	BotList      []BotConfig `yaml:"bot_list"`
 }
 

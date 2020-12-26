@@ -36,6 +36,16 @@ func InitBotManager(config *config.AppConfig, hookPostfix, buildTime, buildHash 
 	return bM
 }
 
+func (b *BotManager) GetBot(botName string) SingleBot {
+	for i := range b.botPool {
+		if b.botPool[i].GetMe() != botName {
+			continue
+		}
+		return b.botPool[i]
+	}
+	return nil
+}
+
 func (b *BotManager) HandleTelegramRequest(msg *tgbotapi.Update, botName string) {
 	for i := range b.botPool {
 		if b.botPool[i].GetMe() != botName {

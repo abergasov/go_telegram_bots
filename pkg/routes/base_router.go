@@ -1,19 +1,24 @@
 package routes
 
 import (
+	"encoding/json"
+	"errors"
 	"go_bots/pkg/bot_manager"
+	"go_bots/pkg/bot_manager/bot_list"
 	"go_bots/pkg/config"
+	"go_bots/pkg/logger"
+	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/http"
 
-	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 type AppRouter struct {
 	GinEngine  *gin.Engine
 	BotManager *bot_manager.BotManager
 	config     *config.AppConfig
+	upgrader   websocket.Upgrader
 }
 
 func InitRouter(cnf *config.AppConfig, hookPostfix, buildTime, buildHash string) *AppRouter {
@@ -24,6 +29,13 @@ func InitRouter(cnf *config.AppConfig, hookPostfix, buildTime, buildHash string)
 		GinEngine:  gin.Default(),
 		BotManager: bot_manager.InitBotManager(cnf, hookPostfix, buildTime, buildHash),
 		config:     cnf,
+		upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+			//ReadBufferSize:  1024,
+			//WriteBufferSize: 1024,
+		},
 	}
 }
 
@@ -42,4 +54,39 @@ func (a *AppRouter) HandleHook(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusBadRequest, gin.H{"ok": false})
+}
+
+func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
+	c, err := a.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		logger.Error("Upgrade connection error", err)
+		return
+	}
+	defer c.Close()
+	controllerBot := a.BotManager.GetBot("@rmcpi_bot")
+	if controllerBot == nil {
+		logger.Error("controller bot not registred", errors.New("can't find bot"))
+		return
+	}
+
+	bot, ok := controllerBot.(*bot_list.ControllerBot)
+	if !ok {
+		logger.Error("can't convert SingleBot to ControllerBot", errors.New("can't find bot"))
+	}
+
+	for cmd := range bot.CommandChain {
+		b, _ := json.Marshal(cmd)
+		err = c.WriteMessage(websocket.TextMessage, b)
+		if err != nil {
+			logger.Error("Error write in socket", err)
+		}
+	}
+	////ticker := time.NewTicker(time.Second)
+	//for i := 0; i < 10; i++ {
+	//	time.Sleep(1 * time.Second)
+	//	err = c.WriteMessage(websocket.TextMessage, []byte(`{"ok": true}`))
+	//	if err != nil {
+	//		logger.Error("Error write in socket", err)
+	//	}
+	//}
 }
