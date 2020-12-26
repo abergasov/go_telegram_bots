@@ -81,12 +81,5 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 			logger.Error("Error write in socket", err)
 		}
 	}
-	////ticker := time.NewTicker(time.Second)
-	//for i := 0; i < 10; i++ {
-	//	time.Sleep(1 * time.Second)
-	//	err = c.WriteMessage(websocket.TextMessage, []byte(`{"ok": true}`))
-	//	if err != nil {
-	//		logger.Error("Error write in socket", err)
-	//	}
-	//}
+	logger.Info("Finish write in connection")
 }
