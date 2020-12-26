@@ -10,6 +10,7 @@ import (
 	"go_bots/pkg/logger"
 	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -85,7 +86,7 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 			}
 			logger.Info("received message", zap.String("data", string(b)))
 		default:
-			logger.Info("no activity")
+			time.Sleep(300 * time.Millisecond)
 		}
 	}
 	logger.Info("Finish write in connection")
