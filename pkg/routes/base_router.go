@@ -35,6 +35,7 @@ func InitRouter(cnf *config.AppConfig, hookPostfix, buildTime, buildHash string)
 			CheckOrigin: func(r *http.Request) bool {
 				return true
 			},
+			HandshakeTimeout: 0,
 			//ReadBufferSize:  1024,
 			//WriteBufferSize: 1024,
 		},
