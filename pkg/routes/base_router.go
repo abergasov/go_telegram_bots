@@ -95,6 +95,7 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 			}
 			logger.Info("received message", zap.String("data", string(b)))
 		}
+		cmd = nil
 		time.Sleep(300 * time.Millisecond)
 	}
 	logger.Info("Finish write in connection")
