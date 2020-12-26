@@ -10,6 +10,7 @@ import (
 	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 const (
@@ -34,13 +35,14 @@ type Command struct {
 
 type ControllerBot struct {
 	abstractBot
-	CommandChain chan *Command
+	MuCommand     *sync.RWMutex
+	ActiveCommand *Command
 }
 
 func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime, buildHash string) *ControllerBot {
 	botName := "@rmcpi_bot"
 	mB := &ControllerBot{
-		CommandChain: make(chan *Command, 100),
+		MuCommand: &sync.RWMutex{},
 	}
 	for i := range conf.BotList {
 		if conf.BotList[i].BotName != botName {
@@ -76,10 +78,12 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 func (o *ControllerBot) handleCallback(callbackMessage string) {
 	msg := strings.ReplaceAll(callbackMessage, "/", "")
 	data := strings.Split(msg, "_")
-	o.CommandChain <- &Command{
+	o.MuCommand.Lock()
+	o.ActiveCommand = &Command{
 		Cmd:      data[0],
 		ActionID: data[1],
 	}
+	o.MuCommand.Unlock()
 	logger.Info("message to control", zap.String("command", callbackMessage))
 }
 

@@ -77,18 +77,24 @@ func (a *AppRouter) HandleClient(w http.ResponseWriter, r *http.Request) {
 		logger.Error("can't convert SingleBot to ControllerBot", errors.New("can't find bot"))
 	}
 
+	var cmd *bot_list.Command
 	for {
-		select {
-		case cmd := <-bot.CommandChain:
+		bot.MuCommand.Lock()
+		if bot.ActiveCommand != nil {
+			cmd = bot.ActiveCommand
+			bot.ActiveCommand = nil
+		}
+		bot.MuCommand.Unlock()
+
+		if cmd != nil {
 			b, _ := json.Marshal(cmd)
 			err = c.WriteMessage(websocket.TextMessage, b)
 			if err != nil {
 				logger.Error("Error write in socket", err)
 			}
 			logger.Info("received message", zap.String("data", string(b)))
-		default:
-			time.Sleep(300 * time.Millisecond)
 		}
+		time.Sleep(300 * time.Millisecond)
 	}
 	logger.Info("Finish write in connection")
 }
