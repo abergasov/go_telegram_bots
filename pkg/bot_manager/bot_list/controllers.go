@@ -71,11 +71,11 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 		}
 	}
 	if msg.CallbackQuery != nil {
-		o.handleCallback(msg.CallbackQuery.Data)
+		o.handleCallback(msg.CallbackQuery.Data, msg.CallbackQuery.ID)
 	}
 }
 
-func (o *ControllerBot) handleCallback(callbackMessage string) {
+func (o *ControllerBot) handleCallback(callbackMessage, callbackQueryID string) {
 	msg := strings.ReplaceAll(callbackMessage, "/", "")
 	data := strings.Split(msg, "_")
 	o.MuCommand.Lock()
@@ -85,6 +85,11 @@ func (o *ControllerBot) handleCallback(callbackMessage string) {
 	}
 	o.MuCommand.Unlock()
 	logger.Info("message to control", zap.String("command", callbackMessage))
+	o.botAPI.SendAlert(&utils.TelegramSendAlert{
+		Text:            "added",
+		ShowAlert:       false,
+		CallbackQueryID: callbackQueryID,
+	})
 }
 
 func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
