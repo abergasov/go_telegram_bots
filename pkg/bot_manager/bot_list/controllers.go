@@ -24,6 +24,8 @@ const (
 	PLAY         = "k"
 	CLOSE        = "l"
 	FULL_SCREEN  = "f"
+	VOLUME_UP    = "v"
+	VOLUME_DOWN  = "x"
 )
 
 type Command struct {
@@ -96,12 +98,17 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 		o.sendTelegramMessageToLog("error parse url", err.Error())
 		return
 	}
-	if u.Host != "youtu.be" {
+	validHost := u.Host == "youtu.be" || u.Host == "youtube.com"
+	if !validHost {
 		o.sendTelegramMessageToLog("unknown host", u.Host)
 		return
 	}
 	o.botAPI.DeleteMessage(msg.Message.Chat.ID, msg.Message.MessageID)
 	playID := strings.ReplaceAll(u.Path, "/", "")
+	if playID == "watch" {
+		tmp := strings.Split(strings.ReplaceAll(u.RawQuery, "v=", ""), "&")
+		playID = tmp[0]
+	}
 
 	dataPosition := make([]utils.TelegramInlineKeyboard, 0, 8)
 	for i := 0; i < 8; i++ {
@@ -115,12 +122,18 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 		InlineButtons: &[][]utils.TelegramInlineKeyboard{
 			dataPosition,
 			{
-				o.createButton("<-", SPEED_LESS, playID),
 				o.createButton("<<", BACK_MORE, playID),
 				o.createButton("<", BACK, playID),
 				o.createButton(">", FORWARD, playID),
 				o.createButton(">>", FORWARD_MORE, playID),
+			},
+			{
+				o.createButton("<-", SPEED_LESS, playID),
 				o.createButton("->", SPEED_UP, playID),
+			},
+			{
+				o.createButton("+", VOLUME_UP, playID),
+				o.createButton("-", VOLUME_DOWN, playID),
 			},
 			{
 				o.createButton("play", PLAY, playID),
