@@ -14,12 +14,8 @@ import (
 )
 
 const (
-	SPEED_0_75   = "a"
-	SPEED_1      = "b"
-	SPEED_1_25   = "c"
-	SPEED_1_5    = "d"
-	SPEED_1_75   = "e"
-	SPEED_2      = "f"
+	SPEED_LESS   = "a"
+	SPEED_UP     = "b"
 	FORWARD      = "g"
 	FORWARD_MORE = "h"
 	BACK         = "i"
@@ -116,18 +112,12 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 				o.createButton(">>", FORWARD_MORE, playID),
 			},
 			{
+				o.createButton("<-", SPEED_LESS, playID),
 				o.createButton("<<", BACK_MORE, playID),
 				o.createButton("<", BACK, playID),
 				o.createButton(">", FORWARD, playID),
 				o.createButton(">>", FORWARD_MORE, playID),
-			},
-			{
-				o.createButton("0.75", SPEED_0_75, playID),
-				o.createButton("1", SPEED_1, playID),
-				o.createButton("1.25", SPEED_1_25, playID),
-				o.createButton("1.5", SPEED_1_5, playID),
-				o.createButton("1.75", SPEED_1_75, playID),
-				o.createButton("2", SPEED_2, playID),
+				o.createButton("->", SPEED_UP, playID),
 			},
 			{
 				o.createButton("play", PLAY, playID),
