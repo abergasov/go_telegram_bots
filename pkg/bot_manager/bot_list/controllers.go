@@ -110,6 +110,7 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 		tmp := strings.Split(strings.ReplaceAll(u.RawQuery, "v=", ""), "&")
 		playID = tmp[0]
 	}
+	playID = strings.ReplaceAll(playID, "_", "%")
 
 	dataPosition := make([]utils.TelegramInlineKeyboard, 0, 8)
 	for i := 0; i < 8; i++ {
