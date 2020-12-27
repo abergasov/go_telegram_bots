@@ -26,6 +26,7 @@ const (
 	FULL_SCREEN  = "f"
 	VOLUME_UP    = "v"
 	VOLUME_DOWN  = "x"
+	VOLUME_MUTE  = "m"
 )
 
 type Command struct {
@@ -134,6 +135,7 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 			{
 				o.createButton("+", VOLUME_UP, playID),
 				o.createButton("-", VOLUME_DOWN, playID),
+				o.createButton("m", VOLUME_MUTE, playID),
 			},
 			{
 				o.createButton("play", PLAY, playID),
