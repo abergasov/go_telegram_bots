@@ -9,6 +9,7 @@ import (
 	"go_bots/pkg/utils"
 	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -101,16 +102,17 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 	o.botAPI.DeleteMessage(msg.Message.Chat.ID, msg.Message.MessageID)
 	playID := strings.ReplaceAll(u.Path, "/", "")
 
+	dataPosition := make([]utils.TelegramInlineKeyboard, 0, 8)
+	for i := 0; i < 8; i++ {
+		cmd := strconv.Itoa(i)
+		dataPosition = append(dataPosition, o.createButton(cmd, cmd, playID))
+	}
+
 	o.botAPI.SendMessagePrepared(&utils.TelegramSendMessage{
 		ChatID: msg.Message.Chat.ID,
 		Text:   msg.Message.Text,
 		InlineButtons: &[][]utils.TelegramInlineKeyboard{
-			{
-				o.createButton("<<", BACK_MORE, playID),
-				o.createButton("<", BACK, playID),
-				o.createButton(">", FORWARD, playID),
-				o.createButton(">>", FORWARD_MORE, playID),
-			},
+			dataPosition,
 			{
 				o.createButton("<-", SPEED_LESS, playID),
 				o.createButton("<<", BACK_MORE, playID),
