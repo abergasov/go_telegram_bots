@@ -23,6 +23,7 @@ const (
 	BACK_MORE    = "j"
 	PLAY         = "k"
 	CLOSE        = "l"
+	FULL_SCREEN  = "f"
 )
 
 type Command struct {
@@ -123,6 +124,7 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 			},
 			{
 				o.createButton("play", PLAY, playID),
+				o.createButton("f", FULL_SCREEN, playID),
 				o.createButton("close", CLOSE, playID),
 			},
 		},
