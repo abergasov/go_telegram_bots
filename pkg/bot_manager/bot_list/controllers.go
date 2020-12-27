@@ -98,7 +98,7 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 		o.sendTelegramMessageToLog("error parse url", err.Error())
 		return
 	}
-	validHost := u.Host == "youtu.be" || u.Host == "youtube.com"
+	validHost := u.Host == "youtu.be" || u.Host == "youtube.com" || u.Host == "www.youtube.com"
 	if !validHost {
 		o.sendTelegramMessageToLog("unknown host", u.Host)
 		return
