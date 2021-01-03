@@ -67,7 +67,7 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 		case "/start", "/help":
 			o.sendBotInfo(msg)
 			return
-		case "reboot":
+		case "reboot", "Reboot":
 			o.MuCommand.Lock()
 			o.ActiveCommand = &Command{
 				Cmd:      REBOOT,
