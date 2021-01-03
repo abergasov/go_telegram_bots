@@ -27,6 +27,7 @@ const (
 	VOLUME_UP    = "v"
 	VOLUME_DOWN  = "x"
 	VOLUME_MUTE  = "m"
+	REBOOT       = "r"
 )
 
 type Command struct {
@@ -65,6 +66,14 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 		switch msg.Message.Text {
 		case "/start", "/help":
 			o.sendBotInfo(msg)
+			return
+		case "reboot":
+			o.MuCommand.Lock()
+			o.ActiveCommand = &Command{
+				Cmd:      REBOOT,
+				ActionID: "",
+			}
+			o.MuCommand.Unlock()
 			return
 		}
 		if o.IsAdminChat(msg) {
