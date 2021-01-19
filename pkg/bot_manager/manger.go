@@ -53,9 +53,9 @@ func (b *BotManager) HandleTelegramRequest(msg *tgbotapi.Update, botName string)
 		}
 		b.botPool[i].HandleRequest(msg)
 		if !b.botPool[i].IsAdminChat(msg) {
-			//b.botPool[i].LogEvent(msg)
+			b.botPool[i].LogEvent(msg)
 		}
-		b.botPool[i].LogEvent(msg)
+		//b.botPool[i].LogEvent(msg)
 	}
 }
 
