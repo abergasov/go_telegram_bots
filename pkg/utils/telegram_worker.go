@@ -3,7 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"go_bots/pkg/logger"
+	"go_telegram_bots/pkg/logger"
 	"io/ioutil"
 	"net/http"
 	"strings"

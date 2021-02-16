@@ -1,10 +1,10 @@
 package main
 
 import (
-	"go_bots/pkg/config"
-	"go_bots/pkg/logger"
-	"go_bots/pkg/middleware"
-	"go_bots/pkg/routes"
+	"go_telegram_bots/pkg/config"
+	"go_telegram_bots/pkg/logger"
+	"go_telegram_bots/pkg/middleware"
+	"go_telegram_bots/pkg/routes"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

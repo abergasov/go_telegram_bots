@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go_bots/pkg/config"
-	"go_bots/pkg/logger"
-	"go_bots/pkg/utils"
+	"go_telegram_bots/pkg/config"
+	"go_telegram_bots/pkg/logger"
+	"go_telegram_bots/pkg/utils"
 	"strconv"
 	"strings"
 

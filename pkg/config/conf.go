@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go_bots/pkg/logger"
+	"go_telegram_bots/pkg/logger"
 	"os"
 	"path/filepath"
 

@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"go_bots/pkg/config"
+	"go_telegram_bots/pkg/config"
 	"strings"
 	"time"
 
