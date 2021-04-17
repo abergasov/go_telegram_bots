@@ -78,7 +78,10 @@ func (b *BelformagBot) cancelSub(shop, app string, msg *tgbotapi.Update) {
 		b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Error cancel sub for shop", nil, err.Error())
 		return
 	}
-	println(resp.OK)
+	if resp.OK {
+		b.botAPI.DeleteMessage(msg.Message.Chat.ID, msg.Message.MessageID)
+		return
+	}
 }
 
 func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
