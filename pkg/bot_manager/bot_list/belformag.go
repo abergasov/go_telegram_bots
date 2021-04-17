@@ -60,7 +60,10 @@ func (b *BelformagBot) HandleRequest(msg *tgbotapi.Update) {
 		b.LogEvent(msg)
 	}
 	if msg.CallbackQuery != nil {
-		//o.handleCallback(msg.CallbackQuery.Data, msg.CallbackQuery.ID)
+		if msg.CallbackQuery != nil {
+			strings.Split(msg.CallbackQuery.Data, "_")
+		}
+		b.LogEvent(msg)
 	}
 }
 
@@ -79,13 +82,13 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 		inlineKeyboards = append(inlineKeyboards, []utils.TelegramInlineKeyboard{
 			{
 				Text:         resp.Apps[i],
-				CallbackData: "/d_" + i + resp.Shop,
+				CallbackData: "/d_" + i + "_" + resp.Shop,
 			},
 		})
 	}
 	b.botAPI.SendMessagePrepared(&utils.TelegramSendMessage{
 		ChatID:        msg.Message.Chat.ID,
-		Text:          "found apps",
+		Text:          "found apps for shop " + msg.Message.Text,
 		InlineButtons: &inlineKeyboards,
 	})
 }
