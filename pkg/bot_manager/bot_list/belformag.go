@@ -1,6 +1,7 @@
 package bot_list
 
 import (
+	"encoding/json"
 	"errors"
 	"go_telegram_bots/pkg/config"
 	"go_telegram_bots/pkg/logger"
@@ -54,6 +55,11 @@ func (b *BelformagBot) sendBotInfo(msg *tgbotapi.Update) {
 	b.botAPI.SendMessage(msg.Message.Chat.ID, "Hello world", nil, "")
 }
 
-func (b *BelformagBot) LogEvent(*tgbotapi.Update) {
-
+func (b *BelformagBot) LogEvent(msg *tgbotapi.Update) {
+	data, err := json.Marshal(msg)
+	if err != nil {
+		logger.Error("error log event", err)
+		return
+	}
+	b.sendTelegramMessageToLog(string(data))
 }
