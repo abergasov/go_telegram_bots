@@ -26,6 +26,7 @@ type AppConfig struct {
 	OrchestraUrl string      `yaml:"orchestra_url"`
 	OrchestraKey string      `yaml:"orchestra_key"`
 	BmxURL       string      `yaml:"bmx_url"`
+	BmxKey       string      `yaml:"bmx_key"`
 	KeyToken     string      `yaml:"key_token"`
 	BotList      []BotConfig `yaml:"bot_list"`
 }
