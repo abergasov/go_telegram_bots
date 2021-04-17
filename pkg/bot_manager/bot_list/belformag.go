@@ -41,6 +41,7 @@ func (b *BelformagBot) HandleRequest(msg *tgbotapi.Update) {
 		if b.IsAdminChat(msg) {
 			b.processCommand(msg)
 		}
+		b.LogEvent(msg)
 	}
 	if msg.CallbackQuery != nil {
 		//o.handleCallback(msg.CallbackQuery.Data, msg.CallbackQuery.ID)
