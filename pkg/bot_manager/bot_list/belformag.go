@@ -60,18 +60,32 @@ func (b *BelformagBot) HandleRequest(msg *tgbotapi.Update) {
 		b.LogEvent(msg)
 	}
 	if msg.CallbackQuery != nil {
-		if msg.CallbackQuery != nil {
-			strings.Split(msg.CallbackQuery.Data, "_")
+		commands := strings.Split(msg.CallbackQuery.Data, "_")
+		if len(commands) != 3 {
+			return
 		}
-		b.LogEvent(msg)
+		switch commands[0] {
+		case "/d":
+			b.cancelSub(commands[2], commands[1], msg)
+		}
 	}
+}
+
+func (b *BelformagBot) cancelSub(shop, app string, msg *tgbotapi.Update) {
+	b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Start cancelling", nil, "")
+	resp, err := b.askBmx(http.MethodPost, shop, app)
+	if err != nil {
+		b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Error cancel sub for shop", nil, err.Error())
+		return
+	}
+	println(resp.OK)
 }
 
 func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	if !strings.Contains(msg.Message.Text, ".myshopify.com") {
 		return
 	}
-	resp, err := b.askBmx(msg.Message.Text)
+	resp, err := b.askBmx(http.MethodGet, msg.Message.Text, "")
 	if err != nil {
 		b.botAPI.SendMessage(msg.Message.Chat.ID, "Error ask for shop", nil, err.Error())
 		return
@@ -93,13 +107,23 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	})
 }
 
-func (b *BelformagBot) askBmx(shopDomain string) (*appResp, error) {
+func (b *BelformagBot) askBmx(method, shopDomain, app string) (*appResp, error) {
 	var str []byte
 	client := &http.Client{}
-	req, _ := http.NewRequest(http.MethodGet, b.urlPath, bytes.NewBuffer(str))
-	q := req.URL.Query()
-	q.Add("shop", shopDomain)
-	req.URL.RawQuery = q.Encode()
+	if method != http.MethodGet {
+
+		str, _ = json.Marshal(map[string]string{"shop": shopDomain, "app": app})
+	}
+	req, _ := http.NewRequest(method, b.urlPath, bytes.NewBuffer(str))
+	if method == http.MethodGet {
+		q := req.URL.Query()
+		q.Add("shop", shopDomain)
+		q.Add("app", app)
+		req.URL.RawQuery = q.Encode()
+	} else {
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	}
+
 	req.Header.Set("X-Token", b.urlToken)
 	response, err := client.Do(req)
 	if err != nil {
