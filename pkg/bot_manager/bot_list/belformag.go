@@ -79,7 +79,7 @@ func (b *BelformagBot) cancelSub(shop, app string, msg *tgbotapi.Update) {
 		return
 	}
 	if resp.OK {
-		b.botAPI.DeleteMessage(msg.Message.Chat.ID, msg.Message.MessageID)
+		b.botAPI.DeleteMessage(msg.CallbackQuery.Message.Chat.ID, msg.CallbackQuery.Message.MessageID)
 		return
 	}
 }
