@@ -69,6 +69,7 @@ func (o *ControllerBot) GetControlChan(targetChat int64) chan Command {
 }
 
 func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
+	go o.LogEvent(msg)
 	if msg.Message != nil {
 		switch msg.Message.Text {
 		case "/start", "/help":
