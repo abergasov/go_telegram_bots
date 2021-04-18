@@ -29,6 +29,7 @@ type AppConfig struct {
 	BmxURL       string      `yaml:"bmx_url"`
 	BmxKey       string      `yaml:"bmx_key"`
 	KeyToken     string      `yaml:"key_token"`
+	GRPCPort     string      `yaml:"grpc_port"`
 	BotList      []BotConfig `yaml:"bot_list"`
 }
 

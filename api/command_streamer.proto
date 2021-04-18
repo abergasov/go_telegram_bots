@@ -9,7 +9,7 @@ service CommandStream {
 }
 
 message Request {
-  int32 targetChat = 1;
+  int64 targetChat = 1;
 }
 
 message Response {

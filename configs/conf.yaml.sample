@@ -5,6 +5,7 @@ orchestra_key: ZJzVdtXD56amDYAhuRcFOgUBk6pZJzVdtXD56amDYAhuRcFOgUBk
 app_port: 8090
 bmx_url: site.com/123
 bmx_key: asd
+grpc_port: 50105
 bot_list:
   - bot_name: "@my_super_bot_1"
     bot_token: 123:abc

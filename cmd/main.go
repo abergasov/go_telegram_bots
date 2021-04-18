@@ -5,9 +5,10 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/abergasov/go_telegram_bots/pkg/grpc/controller"
+
 	"github.com/abergasov/go_telegram_bots/pkg/config"
 	"github.com/abergasov/go_telegram_bots/pkg/logger"
-	"github.com/abergasov/go_telegram_bots/pkg/middleware"
 	"github.com/abergasov/go_telegram_bots/pkg/routes"
 
 	pb "github.com/abergasov/go_telegram_bots/pkg/grpc"
@@ -21,37 +22,6 @@ var (
 	buildTime   = "_dev"
 	buildHash   = "_dev"
 )
-
-type server struct {
-}
-
-func (s server) ListenCommands(req *pb.Request, srv pb.CommandStream_ListenCommandsServer) error {
-	log.Println("start new server")
-	var max int32
-	ctx := srv.Context()
-	max = 999
-	for {
-
-		// exit if context is done
-		// or continue
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		// receive data from stream
-		if req.TargetChat <= max {
-			continue
-		}
-
-		resp := pb.Response{Cmd: "12312", ActionID: "adwdawd"}
-		if err := srv.Send(&resp); err != nil {
-			log.Printf("send error %v", err)
-		}
-		log.Printf("send new max=%d", max)
-	}
-}
 
 func main() {
 	logger.NewLogger()
@@ -69,33 +39,28 @@ func main() {
 		})
 	})
 
-	authorized := router.GinEngine.Group("/bot/pi/client/")
-	authorized.Use(middleware.AuthControllerMiddleware(appConf.KeyToken))
-	authorized.GET("ws", func(c *gin.Context) {
-		machineIP := c.GetHeader("X-Real-Ip")
-		router.HandleClient(c.Writer, c.Request, machineIP)
-	})
-	authorized.POST("re", router.HandleClientRest)
+	controllerBot := router.BotManager.GetBot("@rmcpi_bot")
+	if controllerBot != nil {
+		server := controller.InitServerController(appConf, controllerBot.(controller.CommandBot))
+		go startGRPC(appConf.GRPCPort, server)
+	}
 
 	logger.Info("Starting server at port " + appConf.AppPort)
-
-	errR := router.GinEngine.Run(":" + appConf.AppPort)
-	if errR != nil {
+	if errR := router.GinEngine.Run(":" + appConf.AppPort); errR != nil {
 		logger.Fatal("Common server error", errR)
 	}
 
-	// create listiner
-	lis, err := net.Listen("tcp", ":50105")
+}
+
+func startGRPC(port string, server pb.CommandStreamServer) {
+	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterCommandStreamServer(s, server{})
-	//s.RegisterService(s, server{})
-	// and start...
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	pb.RegisterCommandStreamServer(s, server)
+	if err = s.Serve(lis); err != nil {
+		logger.Fatal("failed serve grpc", err)
 	}
-
 }

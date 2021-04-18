@@ -38,14 +38,14 @@ type Command struct {
 
 type ControllerBot struct {
 	abstractBot
-	MuCommand     *sync.RWMutex
-	ActiveCommand *Command
+	muCommand *sync.RWMutex
+	chatMap   map[int64]chan Command
 }
 
 func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime, buildHash string) *ControllerBot {
 	botName := "@rmcpi_bot"
 	mB := &ControllerBot{
-		MuCommand: &sync.RWMutex{},
+		muCommand: &sync.RWMutex{},
 	}
 	for i := range conf.BotList {
 		if conf.BotList[i].BotName != botName {
@@ -62,6 +62,11 @@ func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime
 	return mB
 }
 
+func (o *ControllerBot) GetControlChan(targetChat int64) chan Command {
+	o.checkChanExit(targetChat)
+	return o.chatMap[targetChat]
+}
+
 func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 	if msg.Message != nil {
 		switch msg.Message.Text {
@@ -69,32 +74,20 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 			o.sendBotInfo(msg)
 			return
 		case "reboot", "Reboot":
-			o.MuCommand.Lock()
-			o.ActiveCommand = &Command{
-				Cmd:      REBOOT,
-				ActionID: "",
-			}
-			o.MuCommand.Unlock()
+			o.chatMap[msg.Message.Chat.ID] <- Command{Cmd: REBOOT, ActionID: ""}
 			return
 		}
-		if o.IsAdminChat(msg) {
-			o.processYouTube(msg)
-		}
+		o.processYouTube(msg)
 	}
 	if msg.CallbackQuery != nil {
-		o.handleCallback(msg.CallbackQuery.Data, msg.CallbackQuery.ID)
+		o.handleCallback(msg.CallbackQuery.Data, msg.CallbackQuery.ID, msg.CallbackQuery.Message.Chat.ID)
 	}
 }
 
-func (o *ControllerBot) handleCallback(callbackMessage, callbackQueryID string) {
+func (o *ControllerBot) handleCallback(callbackMessage, callbackQueryID string, chatID int64) {
 	msg := strings.ReplaceAll(callbackMessage, "/", "")
 	data := strings.Split(msg, "_")
-	o.MuCommand.Lock()
-	o.ActiveCommand = &Command{
-		Cmd:      data[0],
-		ActionID: data[1],
-	}
-	o.MuCommand.Unlock()
+	o.chatMap[chatID] <- Command{Cmd: data[0], ActionID: data[1]}
 	logger.Info("message to control", zap.String("command", callbackMessage))
 	o.botAPI.SendAlert(&utils.TelegramSendAlert{
 		Text:            "added",
@@ -155,6 +148,7 @@ func (o *ControllerBot) processYouTube(msg *tgbotapi.Update) {
 			},
 		},
 	})
+	o.checkChanExit(msg.Message.Chat.ID)
 }
 
 func (o *ControllerBot) createButton(text, code, playID string) utils.TelegramInlineKeyboard {
@@ -172,4 +166,12 @@ func (o *ControllerBot) LogEvent(msg *tgbotapi.Update) {
 
 func (o *ControllerBot) sendBotInfo(msg *tgbotapi.Update) {
 	o.botAPI.SendMessage(msg.Message.Chat.ID, "Bot allow control pi", nil)
+}
+
+func (o *ControllerBot) checkChanExit(chatID int64) {
+	o.muCommand.Lock()
+	if _, ok := o.chatMap[chatID]; !ok {
+		o.chatMap[chatID] = make(chan Command, 1000)
+	}
+	o.muCommand.Unlock()
 }
