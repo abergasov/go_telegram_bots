@@ -16,19 +16,20 @@ import (
 )
 
 const (
-	SPEED_LESS   = "a"
-	SPEED_UP     = "b"
-	FORWARD      = "g"
-	FORWARD_MORE = "h"
-	BACK         = "i"
-	BACK_MORE    = "j"
-	PLAY         = "k"
-	CLOSE        = "l"
-	FULL_SCREEN  = "f"
-	VOLUME_UP    = "v"
-	VOLUME_DOWN  = "x"
-	VOLUME_MUTE  = "m"
-	REBOOT       = "r"
+	SPEED_LESS        = "a"
+	SPEED_UP          = "b"
+	FORWARD           = "g"
+	FORWARD_MORE      = "h"
+	BACK              = "i"
+	BACK_MORE         = "j"
+	PLAY              = "k"
+	CLOSE             = "l"
+	FULL_SCREEN       = "f"
+	VOLUME_UP         = "v"
+	VOLUME_DOWN       = "x"
+	VOLUME_MUTE       = "m"
+	REBOOT            = "r"
+	commandBufferSize = 10
 )
 
 type Command struct {
@@ -177,7 +178,7 @@ func (o *ControllerBot) checkChanExit(chatID int64) {
 	o.muCommand.RUnlock()
 	if !ok {
 		o.muCommand.Lock()
-		o.chatMap[chatID] = make(chan Command, 2)
+		o.chatMap[chatID] = make(chan Command, commandBufferSize)
 		o.muCommand.Unlock()
 	}
 	if len(o.chatMap[chatID]) == cap(o.chatMap[chatID]) {
