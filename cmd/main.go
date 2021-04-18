@@ -29,7 +29,7 @@ func (s server) ListenCommands(req *pb.Request, srv pb.CommandStream_ListenComma
 	log.Println("start new server")
 	var max int32
 	ctx := srv.Context()
-
+	max = 999
 	for {
 
 		// exit if context is done
@@ -85,7 +85,7 @@ func main() {
 	}
 
 	// create listiner
-	lis, err := net.Listen("tcp", ":50005")
+	lis, err := net.Listen("tcp", ":50105")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
