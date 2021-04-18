@@ -175,4 +175,11 @@ func (o *ControllerBot) checkChanExit(chatID int64) {
 		o.chatMap[chatID] = make(chan Command, 1000)
 	}
 	o.muCommand.Unlock()
+	if len(o.chatMap[chatID]) == cap(o.chatMap[chatID]) {
+		logger.Info("channel is full, erase it", zap.Int64("chat", chatID))
+		for range o.chatMap[chatID] {
+
+		}
+		logger.Info("channel erased", zap.Int64("chat", chatID))
+	}
 }
