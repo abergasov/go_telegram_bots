@@ -137,13 +137,13 @@ var file_api_command_streamer_proto_rawDesc = []byte{
 	0x74, 0x22, 0x38, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a,
 	0x03, 0x63, 0x6d, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x63, 0x6d, 0x64, 0x12,
 	0x1a, 0x0a, 0x08, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x08, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x32, 0x4e, 0x0a, 0x0d, 0x43,
-	0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x3d, 0x0a, 0x0e,
+	0x09, 0x52, 0x08, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x32, 0x4c, 0x0a, 0x0d, 0x43,
+	0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x3b, 0x0a, 0x0e,
 	0x4c, 0x69, 0x73, 0x74, 0x65, 0x6e, 0x43, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x73, 0x12, 0x11,
 	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x1a, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01, 0x30, 0x01, 0x42, 0x04, 0x5a, 0x02, 0x2e,
-	0x2f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x30, 0x01, 0x42, 0x04, 0x5a, 0x02, 0x2e, 0x2f, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -236,7 +236,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type CommandStreamClient interface {
-	ListenCommands(ctx context.Context, opts ...grpc.CallOption) (CommandStream_ListenCommandsClient, error)
+	ListenCommands(ctx context.Context, in *Request, opts ...grpc.CallOption) (CommandStream_ListenCommandsClient, error)
 }
 
 type commandStreamClient struct {
@@ -247,27 +247,28 @@ func NewCommandStreamClient(cc grpc.ClientConnInterface) CommandStreamClient {
 	return &commandStreamClient{cc}
 }
 
-func (c *commandStreamClient) ListenCommands(ctx context.Context, opts ...grpc.CallOption) (CommandStream_ListenCommandsClient, error) {
+func (c *commandStreamClient) ListenCommands(ctx context.Context, in *Request, opts ...grpc.CallOption) (CommandStream_ListenCommandsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &_CommandStream_serviceDesc.Streams[0], "/protobuf.CommandStream/ListenCommands", opts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &commandStreamListenCommandsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	return x, nil
 }
 
 type CommandStream_ListenCommandsClient interface {
-	Send(*Request) error
 	Recv() (*Response, error)
 	grpc.ClientStream
 }
 
 type commandStreamListenCommandsClient struct {
 	grpc.ClientStream
-}
-
-func (x *commandStreamListenCommandsClient) Send(m *Request) error {
-	return x.ClientStream.SendMsg(m)
 }
 
 func (x *commandStreamListenCommandsClient) Recv() (*Response, error) {
@@ -280,14 +281,14 @@ func (x *commandStreamListenCommandsClient) Recv() (*Response, error) {
 
 // CommandStreamServer is the server API for CommandStream service.
 type CommandStreamServer interface {
-	ListenCommands(CommandStream_ListenCommandsServer) error
+	ListenCommands(*Request, CommandStream_ListenCommandsServer) error
 }
 
 // UnimplementedCommandStreamServer can be embedded to have forward compatible implementations.
 type UnimplementedCommandStreamServer struct {
 }
 
-func (*UnimplementedCommandStreamServer) ListenCommands(CommandStream_ListenCommandsServer) error {
+func (*UnimplementedCommandStreamServer) ListenCommands(*Request, CommandStream_ListenCommandsServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListenCommands not implemented")
 }
 
@@ -296,12 +297,15 @@ func RegisterCommandStreamServer(s *grpc.Server, srv CommandStreamServer) {
 }
 
 func _CommandStream_ListenCommands_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(CommandStreamServer).ListenCommands(&commandStreamListenCommandsServer{stream})
+	m := new(Request)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(CommandStreamServer).ListenCommands(m, &commandStreamListenCommandsServer{stream})
 }
 
 type CommandStream_ListenCommandsServer interface {
 	Send(*Response) error
-	Recv() (*Request, error)
 	grpc.ServerStream
 }
 
@@ -313,14 +317,6 @@ func (x *commandStreamListenCommandsServer) Send(m *Response) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *commandStreamListenCommandsServer) Recv() (*Request, error) {
-	m := new(Request)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 var _CommandStream_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "protobuf.CommandStream",
 	HandlerType: (*CommandStreamServer)(nil),
@@ -330,7 +326,6 @@ var _CommandStream_serviceDesc = grpc.ServiceDesc{
 			StreamName:    "ListenCommands",
 			Handler:       _CommandStream_ListenCommands_Handler,
 			ServerStreams: true,
-			ClientStreams: true,
 		},
 	},
 	Metadata: "api/command_streamer.proto",

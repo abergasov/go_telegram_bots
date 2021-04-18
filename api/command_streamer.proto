@@ -5,7 +5,7 @@ package protobuf;
 option go_package = "./";
 
 service CommandStream {
-  rpc ListenCommands (stream Request) returns (stream Response) {}
+  rpc ListenCommands (Request) returns (stream Response) {}
 }
 
 message Request {

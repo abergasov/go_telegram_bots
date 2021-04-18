@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -26,7 +25,7 @@ var (
 type server struct {
 }
 
-func (s server) ListenCommands(srv pb.CommandStream_ListenCommandsServer) error {
+func (s server) ListenCommands(req *pb.Request, srv pb.CommandStream_ListenCommandsServer) error {
 	log.Println("start new server")
 	var max int32
 	ctx := srv.Context()
@@ -42,25 +41,10 @@ func (s server) ListenCommands(srv pb.CommandStream_ListenCommandsServer) error 
 		}
 
 		// receive data from stream
-		req, err := srv.Recv()
-		if err == io.EOF {
-			// return will close stream from server side
-			log.Println("exit")
-			return nil
-		}
-		if err != nil {
-			log.Printf("receive error %v", err)
-			continue
-		}
-
-		// continue if number reveived from stream
-		// less than max
 		if req.TargetChat <= max {
 			continue
 		}
 
-		// update max and send it to stream
-		max = req.TargetChat
 		resp := pb.Response{Cmd: "12312", ActionID: "adwdawd"}
 		if err := srv.Send(&resp); err != nil {
 			log.Printf("send error %v", err)
