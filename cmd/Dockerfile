@@ -13,5 +13,5 @@ COPY --from=build /go/src/bot/configs/* /app/configs/
 COPY --from=build /go/src/bot/scripts/wait-for-it.sh /app/wait-for-it.sh
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 RUN chmod +x /app/*
-EXPOSE 8090/tcp
+EXPOSE 8090/tcp 50105/tcp
 CMD /app/bot
