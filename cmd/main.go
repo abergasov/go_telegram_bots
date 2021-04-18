@@ -4,6 +4,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
+
+	"google.golang.org/grpc/keepalive"
 
 	"go.uber.org/zap"
 
@@ -61,7 +64,11 @@ func startGRPC(port string, server pb.CommandStreamServer) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			MaxConnectionIdle: 5 * time.Minute,
+		}),
+	)
 	pb.RegisterCommandStreamServer(s, server)
 	if err = s.Serve(lis); err != nil {
 		logger.Fatal("failed serve grpc", err)
