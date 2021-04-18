@@ -5,6 +5,8 @@ import (
 	"net"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/abergasov/go_telegram_bots/pkg/grpc/controller"
 
 	"github.com/abergasov/go_telegram_bots/pkg/config"
@@ -53,6 +55,7 @@ func main() {
 }
 
 func startGRPC(port string, server pb.CommandStreamServer) {
+	logger.Info("start listen grpc on port", zap.String("port", port))
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
