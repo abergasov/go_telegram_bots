@@ -87,6 +87,7 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 }
 
 func (o *ControllerBot) handleCallback(callbackMessage, callbackQueryID string, chatID int64) {
+	o.checkChanExit(chatID)
 	msg := strings.ReplaceAll(callbackMessage, "/", "")
 	data := strings.Split(msg, "_")
 	o.chatMap[chatID] <- Command{Cmd: data[0], ActionID: data[1]}
@@ -171,15 +172,20 @@ func (o *ControllerBot) sendBotInfo(msg *tgbotapi.Update) {
 }
 
 func (o *ControllerBot) checkChanExit(chatID int64) {
-	o.muCommand.Lock()
-	if _, ok := o.chatMap[chatID]; !ok {
-		o.chatMap[chatID] = make(chan Command, 1000)
+	o.muCommand.RLock()
+	_, ok := o.chatMap[chatID]
+	o.muCommand.RUnlock()
+	if !ok {
+		o.muCommand.Lock()
+		o.chatMap[chatID] = make(chan Command, 2)
+		o.muCommand.Unlock()
 	}
-	o.muCommand.Unlock()
 	if len(o.chatMap[chatID]) == cap(o.chatMap[chatID]) {
 		logger.Info("channel is full, erase it", zap.Int64("chat", chatID))
-		for range o.chatMap[chatID] {
-
+		var cmd Command
+		for len(o.chatMap[chatID]) > 0 {
+			cmd = <-o.chatMap[chatID]
+			logger.Info("clear unread command", zap.String("id", cmd.ActionID), zap.String("cmd", cmd.Cmd))
 		}
 		logger.Info("channel erased", zap.Int64("chat", chatID))
 	}
