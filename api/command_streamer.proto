@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protobuf;
+
+option go_package = "./";
+
+service CommandStream {
+  rpc ListenCommands (stream Request) returns (stream Response) {}
+}
+
+message Request {
+  int32 targetChat = 1;
+}
+
+message Response {
+  string cmd = 1;
+  string actionID = 2;
+}
