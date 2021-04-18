@@ -8,6 +8,8 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	go.uber.org/zap v1.16.0
+	google.golang.org/grpc v1.37.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/go-telegram-bot-api/telegram-bot-api.v4 v4.6.4
 	gopkg.in/yaml.v2 v2.4.0
 )

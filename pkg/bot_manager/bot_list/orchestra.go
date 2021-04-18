@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"go_telegram_bots/pkg/config"
-	"go_telegram_bots/pkg/logger"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/abergasov/go_telegram_bots/pkg/config"
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
 
 	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 )

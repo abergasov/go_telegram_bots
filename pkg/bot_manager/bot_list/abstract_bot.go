@@ -3,10 +3,11 @@ package bot_list
 import (
 	"encoding/json"
 	"fmt"
-	"go_telegram_bots/pkg/config"
-	"go_telegram_bots/pkg/database"
-	"go_telegram_bots/pkg/logger"
-	"go_telegram_bots/pkg/utils"
+
+	"github.com/abergasov/go_telegram_bots/pkg/config"
+	"github.com/abergasov/go_telegram_bots/pkg/database"
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
+	"github.com/abergasov/go_telegram_bots/pkg/utils"
 
 	"go.uber.org/zap"
 

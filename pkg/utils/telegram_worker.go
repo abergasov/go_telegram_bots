@@ -3,10 +3,11 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"go_telegram_bots/pkg/logger"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
 
 	"go.uber.org/zap"
 )

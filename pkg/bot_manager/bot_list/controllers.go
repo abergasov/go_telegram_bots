@@ -3,15 +3,16 @@ package bot_list
 import (
 	"encoding/json"
 	"errors"
-	"go.uber.org/zap"
-	"go_telegram_bots/pkg/config"
-	"go_telegram_bots/pkg/logger"
-	"go_telegram_bots/pkg/utils"
-	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/url"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/abergasov/go_telegram_bots/pkg/config"
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
+	"github.com/abergasov/go_telegram_bots/pkg/utils"
+	"go.uber.org/zap"
+	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 )
 
 const (

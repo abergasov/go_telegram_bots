@@ -9,3 +9,7 @@ lint:
 	@echo "-- linter running"
 	golangci-lint run -c .golangci.yaml ./pkg...
 	golangci-lint run -c .golangci.yaml ./cmd...
+
+proto:
+	@echo "-- generate proto"
+	protoc ./api/* --go_out=plugins=grpc:./pkg/grpc

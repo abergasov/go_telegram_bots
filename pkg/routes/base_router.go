@@ -3,14 +3,15 @@ package routes
 import (
 	"encoding/json"
 	"errors"
-	"go.uber.org/zap"
-	"go_telegram_bots/pkg/bot_manager"
-	"go_telegram_bots/pkg/bot_manager/bot_list"
-	"go_telegram_bots/pkg/config"
-	"go_telegram_bots/pkg/logger"
-	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 	"net/http"
 	"time"
+
+	"github.com/abergasov/go_telegram_bots/pkg/bot_manager"
+	"github.com/abergasov/go_telegram_bots/pkg/bot_manager/bot_list"
+	"github.com/abergasov/go_telegram_bots/pkg/config"
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
+	"go.uber.org/zap"
+	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

@@ -1,9 +1,10 @@
 package config
 
 import (
-	"go_telegram_bots/pkg/logger"
 	"os"
 	"path/filepath"
+
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
 
 	"go.uber.org/zap"
 

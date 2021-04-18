@@ -1,10 +1,10 @@
 package bot_manager
 
 import (
-	"go_telegram_bots/pkg/bot_manager/bot_list"
-	"go_telegram_bots/pkg/config"
-	"go_telegram_bots/pkg/logger"
-	"go_telegram_bots/pkg/utils"
+	"github.com/abergasov/go_telegram_bots/pkg/bot_manager/bot_list"
+	"github.com/abergasov/go_telegram_bots/pkg/config"
+	"github.com/abergasov/go_telegram_bots/pkg/logger"
+	"github.com/abergasov/go_telegram_bots/pkg/utils"
 
 	tgbotapi "gopkg.in/go-telegram-bot-api/telegram-bot-api.v4"
 
