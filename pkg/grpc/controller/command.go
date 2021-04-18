@@ -28,7 +28,7 @@ func (s ServerController) ListenCommands(req *pb.Request, srv pb.CommandStream_L
 		resp = pb.Response{Cmd: cmd.Cmd, ActionID: cmd.ActionID}
 		if err := srv.Send(&resp); err != nil {
 			logger.Error("error send command", err)
-			continue
+			return err
 		}
 		logger.Info("send command", zap.String("cmd", cmd.Cmd), zap.String("action", cmd.ActionID), zap.Int64("chat", req.TargetChat))
 	}
