@@ -46,6 +46,7 @@ func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime
 	botName := "@rmcpi_bot"
 	mB := &ControllerBot{
 		muCommand: &sync.RWMutex{},
+		chatMap:   make(map[int64]chan Command, 4),
 	}
 	for i := range conf.BotList {
 		if conf.BotList[i].BotName != botName {
