@@ -1,4 +1,4 @@
-module go_telegram_bots
+module github.com/abergasov/go_telegram_bots
 
 go 1.15
 
