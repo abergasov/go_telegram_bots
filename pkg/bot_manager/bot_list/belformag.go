@@ -68,13 +68,28 @@ func (b *BelformagBot) HandleRequest(msg *tgbotapi.Update) {
 		switch commands[0] {
 		case "/d":
 			b.cancelSub(commands[2], commands[1], msg)
+		case "/r":
+			b.reinstallApp(commands[2], commands[1], msg)
 		}
+	}
+}
+
+func (b *BelformagBot) reinstallApp(shop, app string, msg *tgbotapi.Update) {
+	b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Start reinstalling", nil, "")
+	resp, err := b.askBmx(http.MethodPost, "reinstall", shop, app)
+	if err != nil {
+		b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Error cancel sub for shop", nil, err.Error())
+		return
+	}
+	if resp.OK {
+		b.botAPI.DeleteMessage(msg.CallbackQuery.Message.Chat.ID, msg.CallbackQuery.Message.MessageID)
+		return
 	}
 }
 
 func (b *BelformagBot) cancelSub(shop, app string, msg *tgbotapi.Update) {
 	b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Start cancelling", nil, "")
-	resp, err := b.askBmx(http.MethodPost, shop, app)
+	resp, err := b.askBmx(http.MethodPost, "cancel", shop, app)
 	if err != nil {
 		b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Error cancel sub for shop", nil, err.Error())
 		return
@@ -89,7 +104,7 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	if !strings.Contains(msg.Message.Text, ".myshopify.com") {
 		return
 	}
-	resp, err := b.askBmx(http.MethodGet, msg.Message.Text, "")
+	resp, err := b.askBmx(http.MethodGet, "cancel", msg.Message.Text, "")
 	if err != nil {
 		b.botAPI.SendMessage(msg.Message.Chat.ID, "Error ask for shop", nil, err.Error())
 		return
@@ -99,8 +114,12 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	for i := range resp.Apps {
 		inlineKeyboards = append(inlineKeyboards, []utils.TelegramInlineKeyboard{
 			{
-				Text:         resp.Apps[i],
+				Text:         "cancel sub" + resp.Apps[i],
 				CallbackData: "/d_" + i + "_" + resp.Shop,
+			},
+			{
+				Text:         "reinstall " + resp.Apps[i],
+				CallbackData: "/r_" + i + "_" + resp.Shop,
 			},
 		})
 	}
@@ -111,14 +130,14 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	})
 }
 
-func (b *BelformagBot) askBmx(method, shopDomain, app string) (*appResp, error) {
+func (b *BelformagBot) askBmx(method, bmxAction, shopDomain, app string) (*appResp, error) {
 	var str []byte
 	client := &http.Client{}
 	if method != http.MethodGet {
 
 		str, _ = json.Marshal(map[string]string{"shop": shopDomain, "app": app})
 	}
-	req, _ := http.NewRequest(method, b.urlPath, bytes.NewBuffer(str))
+	req, _ := http.NewRequest(method, b.urlPath+"/"+bmxAction, bytes.NewBuffer(str))
 	if method == http.MethodGet {
 		q := req.URL.Query()
 		q.Add("shop", shopDomain)
