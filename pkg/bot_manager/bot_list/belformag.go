@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/abergasov/go_telegram_bots/pkg/config"
@@ -101,7 +102,17 @@ func (b *BelformagBot) cancelSub(shop, app string, msg *tgbotapi.Update) {
 }
 
 func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
-	if !strings.Contains(msg.Message.Text, ".myshopify.com") {
+	shopName := msg.Message.Text
+	_, errC := strconv.Atoi(msg.Message.Text)
+	if errC == nil {
+		resp, err := b.askBmx(http.MethodPost, "convert", msg.Message.Text, "")
+		if err != nil {
+			b.botAPI.SendMessage(msg.Message.Chat.ID, "Error ask for shop", nil, err.Error())
+			return
+		}
+		shopName = resp.Shop
+	}
+	if !strings.Contains(shopName, ".myshopify.com") {
 		return
 	}
 	resp, err := b.askBmx(http.MethodGet, "cancel", msg.Message.Text, "")
