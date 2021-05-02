@@ -115,7 +115,7 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	if !strings.Contains(shopName, ".myshopify.com") {
 		return
 	}
-	resp, err := b.askBmx(http.MethodGet, "cancel", msg.Message.Text, "")
+	resp, err := b.askBmx(http.MethodGet, "cancel", shopName, "")
 	if err != nil {
 		b.botAPI.SendMessage(msg.Message.Chat.ID, "Error ask for shop", nil, err.Error())
 		return
@@ -136,7 +136,7 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	}
 	b.botAPI.SendMessagePrepared(&utils.TelegramSendMessage{
 		ChatID:        msg.Message.Chat.ID,
-		Text:          "found apps for shop " + msg.Message.Text,
+		Text:          "found apps for shop " + shopName,
 		InlineButtons: &inlineKeyboards,
 	})
 }
