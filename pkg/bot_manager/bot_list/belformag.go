@@ -76,7 +76,7 @@ func (b *BelformagBot) HandleRequest(msg *tgbotapi.Update) {
 }
 
 func (b *BelformagBot) reinstallApp(shop, app string, msg *tgbotapi.Update) {
-	b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Start reinstalling", nil, "")
+	b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Start reinstalling. Shop: "+shop+", app: "+app, nil, "")
 	resp, err := b.askBmx(http.MethodPost, "reinstall", shop, app)
 	if err != nil {
 		b.botAPI.SendMessage(msg.CallbackQuery.Message.Chat.ID, "Error cancel sub for shop", nil, err.Error())
@@ -125,7 +125,7 @@ func (b *BelformagBot) processCommand(msg *tgbotapi.Update) {
 	for i := range resp.Apps {
 		inlineKeyboards = append(inlineKeyboards, []utils.TelegramInlineKeyboard{
 			{
-				Text:         "cancel sub" + resp.Apps[i],
+				Text:         "cancel sub " + resp.Apps[i],
 				CallbackData: "/d_" + i + "_" + resp.Shop,
 			},
 			{
