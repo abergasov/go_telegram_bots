@@ -1,6 +1,7 @@
 package bot_list
 
 import (
+	"container/list"
 	"encoding/json"
 	"errors"
 	"net/url"
@@ -32,6 +33,11 @@ const (
 	commandBufferSize = 10
 )
 
+type CommandContainer struct {
+	streamID string
+	ch       chan Command
+}
+
 type Command struct {
 	Cmd      string // команда для выполнения
 	ActionID string // для какого видео
@@ -40,14 +46,14 @@ type Command struct {
 type ControllerBot struct {
 	abstractBot
 	muCommand *sync.RWMutex
-	chatMap   map[int64]chan Command
+	chatMap   map[int64]*list.List //chan Command
 }
 
 func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime, buildHash string) *ControllerBot {
 	botName := "@rmcpi_bot"
 	mB := &ControllerBot{
 		muCommand: &sync.RWMutex{},
-		chatMap:   make(map[int64]chan Command, 4),
+		chatMap:   make(map[int64]*list.List, 4),
 	}
 	for i := range conf.BotList {
 		if conf.BotList[i].BotName != botName {
@@ -64,9 +70,36 @@ func NewControllerBot(conf *config.AppConfig, tWorker ITelegramWorker, buildTime
 	return mB
 }
 
-func (o *ControllerBot) GetControlChan(targetChat int64) chan Command {
+func (o *ControllerBot) GetControlChan(targetChat int64, streamID string) chan Command {
+	ch := make(chan Command, commandBufferSize)
 	o.checkChanExit(targetChat)
-	return o.chatMap[targetChat]
+	o.muCommand.Lock()
+	o.chatMap[targetChat].PushBack(CommandContainer{ch: ch, streamID: streamID})
+	o.muCommand.Unlock()
+	return ch
+}
+
+func (o *ControllerBot) RemoveControlChan(chatID int64, streamID string) {
+	o.checkChanExit(chatID)
+	o.muCommand.Lock()
+	var el *list.Element
+	for e := o.chatMap[chatID].Front(); e != nil; e = e.Next() {
+		if e.Value.(CommandContainer).streamID == streamID {
+			el = e
+			break
+		}
+	}
+	o.chatMap[chatID].Remove(el)
+	o.muCommand.Unlock()
+}
+
+func (o *ControllerBot) sendCommand(chatID int64, cmd Command) {
+	o.checkChanExit(chatID)
+	o.muCommand.RLock()
+	for e := o.chatMap[chatID].Front(); e != nil; e = e.Next() {
+		e.Value.(CommandContainer).ch <- cmd
+	}
+	o.muCommand.RUnlock()
 }
 
 func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
@@ -77,7 +110,7 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 			o.sendBotInfo(msg)
 			return
 		case "reboot", "Reboot":
-			o.chatMap[msg.Message.Chat.ID] <- Command{Cmd: REBOOT, ActionID: ""}
+			o.sendCommand(msg.Message.Chat.ID, Command{Cmd: REBOOT, ActionID: ""})
 			return
 		}
 		o.processYouTube(msg)
@@ -88,10 +121,9 @@ func (o *ControllerBot) HandleRequest(msg *tgbotapi.Update) {
 }
 
 func (o *ControllerBot) handleCallback(callbackMessage, callbackQueryID string, chatID int64) {
-	o.checkChanExit(chatID)
 	msg := strings.ReplaceAll(callbackMessage, "/", "")
 	data := strings.Split(msg, "_")
-	o.chatMap[chatID] <- Command{Cmd: data[0], ActionID: data[1]}
+	o.sendCommand(chatID, Command{Cmd: data[0], ActionID: data[1]})
 	logger.Info("message to control", zap.String("command", callbackMessage))
 	o.botAPI.SendAlert(&utils.TelegramSendAlert{
 		Text:            "added",
@@ -178,16 +210,23 @@ func (o *ControllerBot) checkChanExit(chatID int64) {
 	o.muCommand.RUnlock()
 	if !ok {
 		o.muCommand.Lock()
-		o.chatMap[chatID] = make(chan Command, commandBufferSize)
+		o.chatMap[chatID] = list.New()
 		o.muCommand.Unlock()
 	}
-	if len(o.chatMap[chatID]) == cap(o.chatMap[chatID]) {
-		logger.Info("channel is full, erase it", zap.Int64("chat", chatID))
-		var cmd Command
-		for len(o.chatMap[chatID]) > 0 {
-			cmd = <-o.chatMap[chatID]
-			logger.Info("clear unread command", zap.String("id", cmd.ActionID), zap.String("cmd", cmd.Cmd))
-		}
-		logger.Info("channel erased", zap.Int64("chat", chatID))
+	for e := o.chatMap[chatID].Front(); e != nil; e = e.Next() {
+		o.eraseChan(e.Value.(CommandContainer))
 	}
+}
+
+func (o *ControllerBot) eraseChan(c CommandContainer) {
+	if len(c.ch) < cap(c.ch) {
+		return
+	}
+	logger.Info("channel is full, erase it")
+	var cmd Command
+	for len(c.ch) > 0 {
+		cmd = <-c.ch
+		logger.Info("clear unread command", zap.String("id", cmd.ActionID), zap.String("cmd", cmd.Cmd))
+	}
+	logger.Info("channel erased")
 }

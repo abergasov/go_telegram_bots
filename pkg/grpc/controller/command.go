@@ -1,8 +1,9 @@
 package controller
 
 import (
-	"github.com/abergasov/go_telegram_bots/pkg/utils"
 	"log"
+
+	"github.com/abergasov/go_telegram_bots/pkg/utils"
 
 	"go.uber.org/zap"
 
@@ -26,7 +27,8 @@ func (s ServerController) ListenCommands(req *pb.Request, srv pb.CommandStream_L
 	streamID := utils.RandString(10)
 	log.Println("start new server: " + streamID)
 	var resp pb.Response
-	for cmd := range s.bot.GetControlChan(req.TargetChat) {
+	defer s.bot.RemoveControlChan(req.TargetChat, streamID)
+	for cmd := range s.bot.GetControlChan(req.TargetChat, streamID) {
 		resp = pb.Response{Cmd: cmd.Cmd, ActionID: cmd.ActionID}
 		if err := srv.Send(&resp); err != nil {
 			logger.Error("error send command: "+streamID, err)
