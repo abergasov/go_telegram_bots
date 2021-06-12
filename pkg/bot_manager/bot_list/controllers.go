@@ -201,7 +201,7 @@ func (o *ControllerBot) LogEvent(msg *tgbotapi.Update) {
 }
 
 func (o *ControllerBot) sendBotInfo(msg *tgbotapi.Update) {
-	o.botAPI.SendMessage(msg.Message.Chat.ID, "Bot allow control pi", nil)
+	o.botAPI.SendMessage(msg.Message.Chat.ID, "Bot allow control pi. chat: "+strconv.FormatInt(msg.Message.Chat.ID, 10), nil)
 }
 
 func (o *ControllerBot) checkChanExit(chatID int64) {
