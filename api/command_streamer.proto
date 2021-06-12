@@ -10,6 +10,8 @@ service CommandStream {
 
 message Request {
   int64 targetChat = 1;
+  string buildHash = 2;
+  string buildTime = 3;
 }
 
 message Response {

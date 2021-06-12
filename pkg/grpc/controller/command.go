@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/abergasov/go_telegram_bots/pkg/utils"
@@ -25,7 +26,7 @@ func InitServerController(cnf *config.AppConfig, bot CommandBot) *ServerControll
 
 func (s ServerController) ListenCommands(req *pb.Request, srv pb.CommandStream_ListenCommandsServer) error {
 	streamID := utils.RandString(10)
-	log.Println("start new server: " + streamID)
+	log.Println(fmt.Sprintf("start new server. %s. %s:%s", streamID, req.BuildHash, req.BuildTime))
 	var resp pb.Response
 	defer s.bot.RemoveControlChan(req.TargetChat, streamID)
 	for cmd := range s.bot.GetControlChan(req.TargetChat, streamID) {
