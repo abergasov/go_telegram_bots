@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -82,15 +83,18 @@ func (o *ControllerBot) GetControlChan(targetChat int64, streamID string) chan C
 func (o *ControllerBot) RemoveControlChan(chatID int64, streamID string) {
 	o.checkChanExit(chatID)
 	o.muCommand.Lock()
+	logger.Info(fmt.Sprintf("try remove command listener. stream %s, chat %d", streamID, chatID))
 	var el *list.Element
 	for e := o.chatMap[chatID].Front(); e != nil; e = e.Next() {
 		if e.Value.(CommandContainer).streamID == streamID {
 			el = e
+			logger.Info(fmt.Sprintf("found node listener. stream %s, chat %d", streamID, chatID))
 			break
 		}
 	}
 	o.chatMap[chatID].Remove(el)
 	o.muCommand.Unlock()
+	logger.Info(fmt.Sprintf("removed node listener. stream %s, chat %d", streamID, chatID))
 }
 
 func (o *ControllerBot) sendCommand(chatID int64, cmd Command) {
